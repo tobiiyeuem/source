@@ -1,5 +1,4 @@
-getgenv().Team = "Marines" -- Marines or Pirates
-getgenv().FpsBooster = false -- true or false
+
 print("akiki toi choi")
 repeat task.wait() until game:IsLoaded() and game:GetService("Players") and game.Players.LocalPlayer and game.Players.LocalPlayer:FindFirstChild("PlayerGui")
 player                                   = game:GetService("Players")
@@ -1597,4 +1596,5 @@ task.spawn(function()
     while task.wait(10) do
         pcall(checkchangeacc)
     end
+
 end)
