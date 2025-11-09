@@ -1,4 +1,3 @@
-
 PirateRaidSenque = -1
 ForcedWeapon = 'Melee' -- dont touch
 spawn(function()
@@ -450,7 +449,7 @@ end
 
 function AsynclyPullServerDatas(Category)
     Notify('Search for ' .. Category .. ' Servers...')
-    local Url = LPH_ENCSTR('https://api-bf.yummydata.click/NfbjHLxVY5fe?type=') .. urlencode(Category)
+    local Url = LPH_ENCSTR('https://api-bf.yummydata.click/kn6SvcZaHHHG?type=') .. urlencode(Category)
     local Success, Result = pcall(function()
         local Raw = request {
             Url = Url,
@@ -1682,6 +1681,23 @@ function UpgradeRaceV3()
 
     elseif Race == 'Fishman' then
         local SeaBeast
+        if not game.Players.LocalPlayer.Backpack:FindFirstChild('Sharkman Karate') and not game.Players.LocalPlayer.Character:FindFirstChild('Sharkman Karate') then
+                function getpos(npcname)
+                    for i, v in game:GetService("ReplicatedStorage").NPCs:GetChildren() do
+                        if v.Name == npcname then
+                            return v.HumanoidRootPart.CFrame
+                        end
+                    end
+                    for i, v in workspace.NPCs:GetChildren() do
+                        if v.Name == npcname then
+                            return v.HumanoidRootPart.CFrame
+                        end
+                    end
+                end
+                TweenTo(getpos("Sharkman Teacher"))
+                repeat wait() until game.Players.LocalPlayer:DistanceFromCharacter(getpos("Sharkman Teacher").Position) <= 30
+                Remotes.CommF_:InvokeServer('BuySharkmanKarate')
+            end
         if not SeaBeast then
             local Boat = GetPlayerBoat()
             if not Boat then
@@ -1695,23 +1711,7 @@ function UpgradeRaceV3()
                 TweenTo(Boat.VehicleSeat.CFrame + Vector3.new(0, math.random(-1, 2), 0))
             end
         else
-            if not ConChoChisiti36.Tools['Sharkman Karate'] then
-                function getpos(npcname)
-                    for i, v in game:GetService("ReplicatedStorage").NPCs:GetChildren() do
-                        if v.Name == npcname then
-                            return v.HumanoidRootPart.CFrame
-                        end
-                    end
-                    for i, v in workspace.NPCs:GetChildren() do
-                        if v.Name == npcname then
-                            return v.HumanoidRootPart.CFrame
-                        end
-                    end
-                end
-                Tweento((getpos("Sharkman Teacher")))
-                repeat wait() until game.Players.LocalPlayer:DistanceFromCharacter(getpos("Sharkman Teacher").Position) <= 30
-                Remotes.CommF_:InvokeServer('BuySharkmanKarate')
-            end
+            
 
             repeat
                 task.wait()
@@ -1783,10 +1783,10 @@ GatCanChuaNguoiDep = Remotes.CommF_:InvokeServer('CheckTempleDoor')
 AiChoMaDiGatCan = Remotes.CommF_:InvokeServer('RaceV4Progress', 'Check') == 4
 LastIdling = os.time()
 while task.wait() do
-    if os.time() - LastIdling > 120 then
-        LocalPlayer:Kick()
-        return
-    end
+    -- if os.time() - LastIdling > 120 then
+    --     LocalPlayer:Kick()
+    --     return
+    -- end
 
     local success, result = xpcall(function()
         if not LocalPlayer.Character:FindFirstChild('HasBuso') then
