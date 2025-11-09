@@ -1,3 +1,4 @@
+
 PirateRaidSenque = -1
 ForcedWeapon = 'Melee' -- dont touch
 spawn(function()
@@ -163,14 +164,14 @@ function Hop(a, b)
     HopServer()
 end
 placeId = game.PlaceId
-if placeId == 2753915549 then
-    Sea = 'Main'
+if placeId == 2753915549 or placeId == 85211729168715 then
+    Sea = "Main"
     SeaIndex = 1
-elseif placeId == 4442272183 then
-    Sea = 'Dressrosa'
+elseif placeId == 4442272183 or placeId == 79091703265657 then
+    Sea = "Dressrosa"
     SeaIndex = 2
-elseif placeId == 7449423635 then
-    Sea = 'Zou'
+elseif placeId == 7449423635 or placeId == 100117331123089 then
+    Sea = "Zou"
     SeaIndex = 3
 end
 
@@ -1681,23 +1682,26 @@ function UpgradeRaceV3()
 
     elseif Race == 'Fishman' then
         local SeaBeast
-        if not game.Players.LocalPlayer.Backpack:FindFirstChild('Sharkman Karate') and not game.Players.LocalPlayer.Character:FindFirstChild('Sharkman Karate') then
-                function getpos(npcname)
-                    for i, v in game:GetService("ReplicatedStorage").NPCs:GetChildren() do
-                        if v.Name == npcname then
-                            return v.HumanoidRootPart.CFrame
-                        end
-                    end
-                    for i, v in workspace.NPCs:GetChildren() do
-                        if v.Name == npcname then
-                            return v.HumanoidRootPart.CFrame
-                        end
+        if not game.Players.LocalPlayer.Backpack:FindFirstChild('Sharkman Karate') and
+            not game.Players.LocalPlayer.Character:FindFirstChild('Sharkman Karate') then
+            function getpos(npcname)
+                for i, v in game:GetService("ReplicatedStorage").NPCs:GetChildren() do
+                    if v.Name == npcname then
+                        return v.HumanoidRootPart.CFrame
                     end
                 end
-                TweenTo(getpos("Sharkman Teacher"))
-                repeat wait() until game.Players.LocalPlayer:DistanceFromCharacter(getpos("Sharkman Teacher").Position) <= 30
-                Remotes.CommF_:InvokeServer('BuySharkmanKarate')
+                for i, v in workspace.NPCs:GetChildren() do
+                    if v.Name == npcname then
+                        return v.HumanoidRootPart.CFrame
+                    end
+                end
             end
+            TweenTo(getpos("Sharkman Teacher"))
+            repeat
+                wait()
+            until game.Players.LocalPlayer:DistanceFromCharacter(getpos("Sharkman Teacher").Position) <= 30
+            Remotes.CommF_:InvokeServer('BuySharkmanKarate')
+        end
         if not SeaBeast then
             local Boat = GetPlayerBoat()
             if not Boat then
@@ -1711,7 +1715,6 @@ function UpgradeRaceV3()
                 TweenTo(Boat.VehicleSeat.CFrame + Vector3.new(0, math.random(-1, 2), 0))
             end
         else
-            
 
             repeat
                 task.wait()
