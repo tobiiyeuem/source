@@ -1,35 +1,31 @@
-# Roblox Item Tracker
+# Roblox Inventory Tracker
 
-A modern, responsive Next.js web application to search and track Roblox items by their ID or Asset ID. Get detailed information about items including price, description, creator, sale status, stock information, and more.
+A modern, responsive Next.js web application to track and view all items owned in any Roblox user's inventory. Automatically fetches and displays all collectible items, accessories, and more with thumbnails and details.
 
 ## Features
 
 ### Core Features
 
-- **Item Search Interface**
-  - Input field to enter Roblox item IDs or asset IDs
-  - Search button to fetch item details
-  - Search history to quickly access previously searched items
+- **Inventory Tracking**
+  - Input field to enter any Roblox username
+  - Automatically fetches all items owned in the user's inventory
+  - Search history to quickly access previously searched usernames
 
-- **Item Details Display**
-  - Item name and description
-  - Item price (in Robux)
-  - High-quality item thumbnail/image
-  - Item type (gear, clothing, accessories, etc.)
-  - Creator information with link to creator profile
-  - Sale status (on sale, off sale, limited, limited U)
-  - Stock information for limited items
-  - Sales count
-  - Creation and update dates
-  - Direct link to view item on Roblox
+- **Inventory Display**
+  - Grid layout showing all items with thumbnails
+  - Item name and asset type
+  - High-quality item thumbnails (420x420)
+  - Direct links to view each item on Roblox
+  - Total item count display
 
 - **User Interface**
-  - Clean, modern design
-  - Fully responsive layout (mobile-friendly)
-  - Loading states while fetching data
+  - Clean, modern design with gradient backgrounds
+  - Fully responsive grid layout (mobile-friendly)
+  - Loading states while fetching inventory data
   - Comprehensive error handling
   - Dark mode support
   - Clear feedback messages
+  - Hover effects on item cards
 
 ## Tech Stack
 
@@ -81,16 +77,17 @@ npm start
 
 ## Usage
 
-1. **Search for an Item**: Enter a Roblox item ID or asset ID in the search field
-2. **View Details**: Click "Search Item" to fetch and display the item details
-3. **Browse History**: Click on any recent search in the history section to quickly view that item again
-4. **View on Roblox**: Click the "View on Roblox" button to open the item page on Roblox.com
+1. **Enter Username**: Type any Roblox username in the search field
+2. **Track Inventory**: Click "Track Inventory" to fetch all items owned by that user
+3. **View Items**: Browse the grid of all items in the user's inventory
+4. **Browse History**: Click on any recent username in the history section to quickly view that inventory again
+5. **View on Roblox**: Click on any item card to open that item's page on Roblox.com
 
-### Example Item IDs to Try
+### Example Usernames to Try
 
-- `1365767` - Dominus Empyreus (Limited item)
-- `11884330` - Builderman's Hat
-- `607702535` - Robox (Popular limited item)
+- `Builderman` - Original Roblox account
+- `Roblox` - Official Roblox account
+- Any valid Roblox username
 
 ## Project Structure
 
@@ -98,6 +95,9 @@ npm start
 source/
 ├── app/
 │   ├── api/
+│   │   ├── inventory/
+│   │   │   └── [username]/
+│   │   │       └── route.ts       # API route for fetching user inventory
 │   │   └── items/
 │   │       └── [id]/
 │   │           └── route.ts       # API route for fetching item details
@@ -105,10 +105,11 @@ source/
 │   ├── page.tsx                   # Main page
 │   └── globals.css                # Global styles
 ├── components/
-│   ├── ItemSearch.tsx             # Search interface component
-│   └── ItemDetails.tsx            # Item details display component
+│   ├── ItemSearch.tsx             # Username input and search interface
+│   ├── InventoryGrid.tsx          # Grid display for inventory items
+│   └── ItemDetails.tsx            # Individual item details component
 ├── lib/
-│   └── roblox-api.ts              # API utilities for Roblox
+│   └── roblox-api.ts              # API utilities for Roblox (inventory & items)
 ├── types/
 │   └── roblox.ts                  # TypeScript type definitions
 ├── public/                        # Static assets
@@ -122,18 +123,21 @@ source/
 
 The application uses the following Roblox public APIs:
 
-- `https://economy.roblox.com/v2/assets/{assetId}/details` - Fetch asset details
-- `https://thumbnails.roblox.com/v1/assets` - Fetch item thumbnails
-- `https://catalog.roblox.com/v1/catalog/items/{itemId}/details` - Fetch catalog item details
+- `https://users.roblox.com/v1/usernames/users` - Convert username to user ID
+- `https://inventory.roblox.com/v1/users/{userId}/assets/collectibles` - Fetch user inventory by asset type
+- `https://thumbnails.roblox.com/v1/assets` - Fetch item thumbnails (420x420 resolution)
+- `https://economy.roblox.com/v2/assets/{assetId}/details` - Fetch asset details (fallback)
+- `https://catalog.roblox.com/v1/catalog/items/{itemId}/details` - Fetch catalog item details (fallback)
 
-No API key is required for these endpoints.
+No API key is required for these public endpoints.
 
 ## Error Handling
 
 The application handles various error scenarios:
 
-- Invalid item IDs (non-numeric or negative values)
-- Item not found (404 errors)
+- Invalid usernames (empty or non-existent users)
+- User not found (404 errors)
+- Empty inventories
 - API rate limits
 - Network errors
 - Invalid API responses

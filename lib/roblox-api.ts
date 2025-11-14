@@ -217,3 +217,115 @@ export async function fetchItemDetails(
     }
   }
 }
+
+export async function getUserIdByUsername(username: string): Promise<number> {
+  try {
+    const response = await fetch(
+      `https://users.roblox.com/v1/usernames/users`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          usernames: [username],
+          excludeBannedUsers: false,
+        }),
+        cache: "no-store",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch user ID: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (!data.data || data.data.length === 0) {
+      throw new Error("User not found");
+    }
+
+    return data.data[0].id;
+  } catch (error) {
+    throw new Error(
+      `Failed to fetch user ${username}: ${error instanceof Error ? error.message : "Unknown error"}`
+    );
+  }
+}
+
+export async function fetchUserInventory(
+  userId: number
+): Promise<ItemSearchResult[]> {
+  try {
+    const assetTypes = [8, 41, 42, 43, 44, 45, 46, 47]; // Different accessory types
+    const allItems: ItemSearchResult[] = [];
+
+    for (const assetTypeId of assetTypes) {
+      try {
+        const response = await fetch(
+          `https://inventory.roblox.com/v1/users/${userId}/assets/collectibles?assetType=${assetTypeId}&sortOrder=Asc&limit=100`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            cache: "no-store",
+          }
+        );
+
+        if (!response.ok) {
+          console.log(`Failed to fetch asset type ${assetTypeId}: ${response.status}`);
+          continue;
+        }
+
+        const data = await response.json();
+        
+        if (data.data && data.data.length > 0) {
+          for (const item of data.data) {
+            // Fetch thumbnail
+            const thumbnailResponse = await fetch(
+              `https://thumbnails.roblox.com/v1/assets?assetIds=${item.assetId}&size=420x420&format=Png`,
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                cache: "no-store",
+              }
+            );
+
+            let thumbnailUrl = "/placeholder-item.png";
+            if (thumbnailResponse.ok) {
+              const thumbnailData = await thumbnailResponse.json();
+              if (thumbnailData.data && thumbnailData.data.length > 0) {
+                thumbnailUrl = thumbnailData.data[0].imageUrl;
+              }
+            }
+
+            allItems.push({
+              id: item.assetId,
+              name: item.name,
+              description: "",
+              creator: "",
+              creatorId: 0,
+              price: null,
+              isForSale: false,
+              isLimited: false,
+              isLimitedUnique: false,
+              remaining: null,
+              assetType: ASSET_TYPES[assetTypeId] || `Type ${assetTypeId}`,
+              thumbnailUrl,
+              created: item.created || "",
+              updated: "",
+            });
+          }
+        }
+      } catch (error) {
+        console.error(`Error fetching asset type ${assetTypeId}:`, error);
+      }
+    }
+
+    return allItems;
+  } catch (error) {
+    throw new Error(
+      `Failed to fetch inventory for user ${userId}: ${error instanceof Error ? error.message : "Unknown error"}`
+    );
+  }
+}

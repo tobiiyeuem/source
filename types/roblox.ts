@@ -79,3 +79,16 @@ export interface ItemSearchResult {
   rap?: number;
   sales?: number;
 }
+
+export interface RobloxInventoryItem {
+  assetId: number;
+  name: string;
+  assetType: string;
+  created: string;
+}
+
+export interface RobloxUserInfo {
+  id: number;
+  name: string;
+  displayName: string;
+}

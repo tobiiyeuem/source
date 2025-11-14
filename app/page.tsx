@@ -6,10 +6,10 @@ export default function Home() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            Roblox Item Tracker
+            Roblox Inventory Tracker
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            Search and track Roblox items by ID or Asset ID
+            Track and view all items in any Roblox user&apos;s inventory
           </p>
         </div>
         

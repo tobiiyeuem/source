@@ -2,42 +2,48 @@
 
 import { useState } from "react";
 import { ItemSearchResult } from "@/types/roblox";
-import ItemDetails from "./ItemDetails";
+import InventoryGrid from "./InventoryGrid";
 
 export default function ItemSearch() {
-  const [itemId, setItemId] = useState("");
+  const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [item, setItem] = useState<ItemSearchResult | null>(null);
-  const [searchHistory, setSearchHistory] = useState<number[]>([]);
+  const [inventoryData, setInventoryData] = useState<{
+    username: string;
+    items: ItemSearchResult[];
+  } | null>(null);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const id = parseInt(itemId.trim());
-    if (isNaN(id) || id <= 0) {
-      setError("Please enter a valid item ID (positive number)");
+    const trimmedUsername = username.trim();
+    if (!trimmedUsername) {
+      setError("Please enter a valid Roblox username");
       return;
     }
 
     setLoading(true);
     setError(null);
-    setItem(null);
+    setInventoryData(null);
 
     try {
-      const response = await fetch(`/api/items/${id}`);
+      const response = await fetch(`/api/inventory/${encodeURIComponent(trimmedUsername)}`);
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch item details");
+        throw new Error(errorData.error || "Failed to fetch inventory");
       }
 
-      const data: ItemSearchResult = await response.json();
-      setItem(data);
+      const data = await response.json();
+      setInventoryData({
+        username: data.username,
+        items: data.items,
+      });
       
       // Add to search history (avoid duplicates)
       setSearchHistory((prev) => {
-        const newHistory = [id, ...prev.filter((i) => i !== id)].slice(0, 10);
+        const newHistory = [trimmedUsername, ...prev.filter((u) => u !== trimmedUsername)].slice(0, 10);
         return newHistory;
       });
     } catch (err) {
@@ -47,33 +53,33 @@ export default function ItemSearch() {
     }
   };
 
-  const handleHistoryClick = (id: number) => {
-    setItemId(id.toString());
+  const handleHistoryClick = (user: string) => {
+    setUsername(user);
     setError(null);
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6">
+    <div className="w-full max-w-6xl mx-auto space-y-6">
       {/* Search Form */}
       <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-lg p-6">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-          Search Roblox Items
+          Track Roblox Inventory
         </h2>
         
         <form onSubmit={handleSearch} className="space-y-4">
           <div>
             <label
-              htmlFor="itemId"
+              htmlFor="username"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
-              Item ID or Asset ID
+              Roblox Username
             </label>
             <input
               type="text"
-              id="itemId"
-              value={itemId}
-              onChange={(e) => setItemId(e.target.value)}
-              placeholder="Enter item ID (e.g., 1365767)"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter Roblox username (e.g., Builderman)"
               className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-zinc-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               disabled={loading}
             />
@@ -81,7 +87,7 @@ export default function ItemSearch() {
 
           <button
             type="submit"
-            disabled={loading || !itemId.trim()}
+            disabled={loading || !username.trim()}
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors"
           >
             {loading ? (
@@ -106,10 +112,10 @@ export default function ItemSearch() {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   />
                 </svg>
-                Searching...
+                Loading Inventory...
               </span>
             ) : (
-              "Search Item"
+              "Track Inventory"
             )}
           </button>
         </form>
@@ -118,16 +124,16 @@ export default function ItemSearch() {
         {searchHistory.length > 0 && (
           <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-              Recent Searches
+              Recent Usernames
             </h3>
             <div className="flex flex-wrap gap-2">
-              {searchHistory.map((id) => (
+              {searchHistory.map((user) => (
                 <button
-                  key={id}
-                  onClick={() => handleHistoryClick(id)}
+                  key={user}
+                  onClick={() => handleHistoryClick(user)}
                   className="px-3 py-1 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-300 rounded-full text-sm transition-colors"
                 >
-                  {id}
+                  {user}
                 </button>
               ))}
             </div>
@@ -155,8 +161,13 @@ export default function ItemSearch() {
         </div>
       )}
 
-      {/* Item Details */}
-      {item && !loading && <ItemDetails item={item} />}
+      {/* Inventory Grid */}
+      {inventoryData && !loading && (
+        <InventoryGrid 
+          items={inventoryData.items} 
+          username={inventoryData.username} 
+        />
+      )}
     </div>
   );
 }
